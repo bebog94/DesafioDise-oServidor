@@ -2,7 +2,9 @@ import { dirname } from "path";
 import { fileURLToPath } from "url";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
-const SECRETJWT= "jwtSecret";
+import dotenv from 'dotenv';
+dotenv.config();
+const { SECRETJWT } = process.env;
 
 export const __dirname = dirname(fileURLToPath(import.meta.url));
 

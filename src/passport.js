@@ -1,13 +1,24 @@
 import passport from "passport";
-import { usersManager } from "./dao/managers/usersManager.js";
+import { usersManager } from "./DAL/dao/managers/usersManager.js";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as GithubStrategy } from "passport-github2";
 import { ExtractJwt, Strategy as JWTStrategy } from "passport-jwt"
 import { hashData, compareData } from "./utils.js";
 import dotenv from 'dotenv';
+import { cartsManager } from "./DAL/dao/managers/cartsManager.js";
+import UsersRequest from "./DAL/dtos/user-request.dto.js";
 dotenv.config();
 
 const { SECRETJWT } = process.env;
+
+
+const admin = {
+  first_name: 'Admin',
+  last_name: 'Coder',
+  email: 'adminCoder@coder.com',  
+  password: 'adminCod3r123',
+  role: 'ADMIN'
+}
 
 
 
@@ -25,17 +36,26 @@ passport.use("signup", new LocalStrategy(
     }
     try {
       const hashedPassword = await hashData(password);
-      const createdUser = await usersManager.createOne({
-        ...req.body,
-        password: hashedPassword,
-      });
+      const createdCart = await cartsManager.createCart()
+      const userDto = new UsersRequest({ ...req.body, 
+        cart: createdCart._id,
+        password: hashedPassword });
+
+     let createdUser
+      if (email === admin.email) {
+        createdUser = await usersManager.createOne({
+          ...userDto,          
+          role: "ADMIN"
+        })
+        return done(null, createdUser);
+      }
+      createdUser = await usersManager.createOne(userDto);
       done(null, createdUser);
-    } catch (error) {
-      done(error);
-    }
+  }catch (error){
+      done(error)
   }
-)
-);
+}))
+;
 
 passport.use("login", new LocalStrategy(
 
@@ -46,20 +66,25 @@ passport.use("login", new LocalStrategy(
       done(null, false, { message: "All fields are required" });
     }
     try {
-      const user = await usersManager.findByEmail(email);
-      if (!user) {
-        done(null, false, { message: "Incorrect email or password." });
-      }
-
-      const isPasswordValid = await compareData(password, user.password);
-      if (!isPasswordValid) {
-        console.log("pass incorrecto");
-        return done(null, false, { message: "Incorrect email or password." });
-      }
-      done(null, user);
-    } catch (error) {
-      done(error);
-    }
+      let user;
+      const isAdminPassValid = await compareData(password, admin.password)
+      if (email === admin.email && isAdminPassValid) {
+      user = admin
+      }else{
+      user = await usersManager.findByEmail(email)
+      
+      if(!user){
+          return done(null, false, {message: 'You need to sign up first'})
+          }
+          const isPassValid = await compareData(password, user.password)
+          if(!isPassValid){
+              return done(null, false, {message: 'Incorrect username or password'})
+          }
+      }      
+      done(null, user)      
+  }catch (error){
+      done(error)
+  }
   }
 )
 );

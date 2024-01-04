@@ -15,6 +15,10 @@ class UsersManager {
     const response = await usersModel.create(obj);
     return response;
   }
+  
+  async findUserByCart(cart){        
+    return await usersModel.findOne({cart})                                       
+}
 }
 
 export const usersManager = new UsersManager();

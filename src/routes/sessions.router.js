@@ -1,7 +1,9 @@
 import { Router } from "express";
-import { usersManager } from "../dao/managers/usersManager.js";
+import { usersManager } from "../DAL/dao/managers/usersManager.js";
 import { hashData, compareData, generateToken } from "../utils.js";
 import passport from "passport";
+import UsersResponse from "../DAL/dtos/user-response.dto.js";
+
 const router = Router();
 
 /* router.post("/signup", async (req, res) => {
@@ -55,12 +57,15 @@ router.post(
 router.post("/login",passport.authenticate("login",{failureMessage: true,failureRedirect: "/error",}),(req,res)=>{
     const token = generateToken(req.user);
     res
-    .cookie("token",token, {maxAge: 60000, httpOnly: true})
+    .cookie("token",token, {maxAge: 300000, httpOnly: true})
     return res.redirect("/api/sessions/current")
   });
 
+
+  
   router.get('/current', passport.authenticate('jwt', {session: false}), async(req, res) => {
-    res.status(200).json({message: 'User logged', user: req.user})  
+    const userDTO = new UsersResponse(req.user);
+    res.status(200).json({message: 'User logged', user: userDTO})  
   })
 
 

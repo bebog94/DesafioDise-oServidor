@@ -32,13 +32,9 @@ class CartsManager {
         throw new Error('Cart not found');
       }
       const productId = mongoose.Types.ObjectId(idProduct);
-      
-
       cart.products = cart.products.filter((product) => !product.product.equals(productId));
-
       const updatedCart = await cart.save();
       return updatedCart;
-    
   }
   async updateCartProducts(idCart, productsArray) {
     
@@ -46,11 +42,7 @@ class CartsManager {
       if (!cart) {
         throw new Error('Cart not found');
       }
-
-      // Asigna el arreglo de productos proporcionado al carrito
       cart.products = productsArray;
-
-      // Guarda el carrito actualizado
       const updatedCart = await cart.save();
       return updatedCart;
   }
@@ -59,19 +51,13 @@ class CartsManager {
       if (!cart) {
         throw new Error('Cart not found');
       }
-
       const productIndex = cart.products.findIndex(
         (product) => product.product.toString() === idProduct
       );
-
       if (productIndex === -1) {
         throw new Error('Product not found in the cart');
       }
-
-      // Actualiza la cantidad de ejemplares del producto
       cart.products[productIndex].quantity = newQuantity;
-
-      // Guarda el carrito actualizado
       const updatedCart = await cart.save();
       return updatedCart;
   }
@@ -81,17 +67,11 @@ class CartsManager {
       if (!cart) {
         throw new Error('Cart not found');
       }
-
-      // Elimina todos los productos del carrito
       cart.products = [];
-
-      // Guarda el carrito actualizado
       const updatedCart = await cart.save();
       return updatedCart;
     
   }
 }
-
-
 
 export const cartsManager = new CartsManager();

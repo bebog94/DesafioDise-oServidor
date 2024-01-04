@@ -1,11 +1,7 @@
 import mongoose from "mongoose";
 
 const usersSchema = new mongoose.Schema({
-  first_name: {
-    type: String,
-    required: true,
-  },
-  last_name: {
+  name: {
     type: String,
     required: true,
   },
@@ -32,7 +28,7 @@ const usersSchema = new mongoose.Schema({
   },
   role:{
     type: String,
-    default: "user"
+    default: "USER"
   }
 });
 export const usersModel = mongoose.model("Users", usersSchema);

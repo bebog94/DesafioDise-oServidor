@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { productsManager } from "../dao/managers/productsManager.js";
-//import { cartsManager } from "../dao/managers/cartsManager.js";
+import { productsManager } from "../DAL/dao/managers/productsManager.js";
+import { cartsManager } from "../DAL/dao/managers/cartsManager.js";
+import { authMiddleware } from "../middleware/auth.middleware.js";
 
 const router = Router();
 
@@ -8,6 +9,7 @@ router.get("/login", (req, res) => {
   if (req.session.user) {
     return res.redirect("/profile");
   }
+
   res.render("login");
 });
 
@@ -26,10 +28,10 @@ router.get("/profile", async (req, res) => {
     const user = req.session.passport;
 
     const products = await productsManager.findAll({
-      page: 1, // Ajusta según tus necesidades
-      limit: 10, // Ajusta según tus necesidades
-      sort: null, // Ajusta según tus necesidades
-      query: null, // Ajusta según tus necesidades
+      page: 1, 
+      limit: 10, 
+      sort: null, 
+      query: null, 
     });
 
     // Renderizar la vista "profile" con datos del usuario y productos
@@ -53,11 +55,11 @@ router.get("/error", (req, res) => {
 
 
 
-/*  router.get('/chat', (req, res) => {
+  router.get('/chat', authMiddleware(["USER"]), (req, res) => {
     res.render('chat'); 
-  }); */
+  }); 
 
- /*  router.get('/products', async (req, res) => {
+   router.get('/products', async (req, res) => {
     try {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
@@ -74,9 +76,9 @@ router.get("/error", (req, res) => {
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
-  }); */
+  }); 
 
-  /*
+  
   router.get('/products/:id', async (req, res) => {
     const productId = req.params.id;
   
@@ -102,5 +104,5 @@ router.get("/error", (req, res) => {
       res.status(500).json({ error: error.message });
     }
   });
- */
+ 
 export default router;
